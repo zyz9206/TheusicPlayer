@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TheMusicPlayer">
         <activity
+            android:name=".ui.dialog.PlaylistDialog"
+            android:exported="false" />
+        <activity
+            android:name=".ui.player.PlayerActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
