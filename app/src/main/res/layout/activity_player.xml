@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-<!--    android:background="#FDFDFD">-->
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.player.PlayerActivity">
 
     <!-- 主体-->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,6 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
 
         <TextView
             android:id="@+id/musicName"
@@ -43,6 +44,7 @@
             android:alpha="0.5"
             android:maxWidth="100dp"
             android:paddingStart="1dp"
+            android:paddingEnd="1dp"
             android:singleLine="true"
             android:text="歌手"
             android:textAlignment="textStart"
@@ -90,7 +92,7 @@
             android:layout_marginEnd="15dp"
             android:layout_marginTop="4dp"
             android:alpha="0.72"
-            android:background="@null"
+            android:background="@drawable/bg_music_process_bar"
             android:maxHeight="2dp"
             android:minHeight="4dp"
             android:progressDrawable="@drawable/music_process_bar_bg"
@@ -106,7 +108,7 @@
             android:id="@+id/musicCurrentTime"
             android:layout_marginBottom="4dp"
             android:layout_marginStart="30dp"
-            android:text="当前"
+            android:text="0:00"
             android:textAlignment="textStart"
             android:textColor="#1d1d1d"
             android:textSize="12sp"
@@ -120,7 +122,7 @@
             android:layout_marginEnd="30dp"
             android:layout_marginBottom="4dp"
             android:id="@+id/musicTotalTime"
-            android:text="总时间"
+            android:text="3:30"
             android:textAlignment="textEnd"
             android:textSize="12sp"
             android:textColor="#1d1d1d"
@@ -132,46 +134,53 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="56dp"
+            android:background="@drawable/bg_music_controller"
             android:id="@+id/musicControl"
             android:layout_marginBottom="20dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
 <!--            暂停/播放-->
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/musicPlay"
+                app:lottie_rawRes="@raw/play"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:src="@drawable/pause"
                 />
 <!--            上一首-->
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/previousSong"
+                app:lottie_rawRes="@raw/previous"
+                app:lottie_loop="false"
+                app:lottie_autoPlay="false"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_marginEnd="10dp"
-                android:padding="16dp"
-                android:src="@drawable/previous"
+                android:padding="6dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/musicPlay"
                 app:layout_constraintTop_toTopOf="parent" />
 <!--            下一首-->
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/nextSong"
+                app:lottie_rawRes="@raw/next"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:rotation="180"
                 android:layout_marginStart="10dp"
-                android:padding="16dp"
-                android:src="@drawable/previous"
+                android:padding="6dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/musicPlay"
                 app:layout_constraintTop_toTopOf="parent" />
+
 <!--            播放模式-->
             <ImageView
                 android:id="@+id/playMode"
@@ -179,7 +188,7 @@
                 android:layout_height="56dp"
                 android:layout_marginStart="14dp"
                 android:padding="16dp"
-                android:src="@drawable/circle_play"
+                android:src="@drawable/ic_repeat_play"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -190,7 +199,7 @@
                 android:layout_height="56dp"
                 android:layout_marginEnd="14dp"
                 android:padding="16dp"
-                android:src="@drawable/list_of_songs"
+                android:src="@drawable/ic_music_list"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
