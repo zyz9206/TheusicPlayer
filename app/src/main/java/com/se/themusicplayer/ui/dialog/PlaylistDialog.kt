@@ -41,7 +41,9 @@ class PlaylistDialog : BottomSheetDialogFragment() {
         //初始化LV绑定
         binding.playListRV.apply {
             adapter = PlaylistDialogAdapter(dataSet)
-            // TODO: 滚动到当前歌曲
+            if(App.musicList.currentSongIndex.value!=null){
+                scrollToPosition(App.musicList.currentSongIndex.value!!)
+            }
             layoutManager = LinearLayoutManager(context)
         }
     }
