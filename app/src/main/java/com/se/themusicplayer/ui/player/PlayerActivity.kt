@@ -2,45 +2,34 @@ package com.se.themusicplayer.ui.player
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.animation.LinearInterpolator
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import coil.load
 import com.se.themusicplayer.App
+import com.se.themusicplayer.MusicList
 import com.se.themusicplayer.R
-import com.se.themusicplayer.data.Song
 import com.se.themusicplayer.databinding.ActivityPlayerBinding
 import com.se.themusicplayer.formatToTime
-import com.se.themusicplayer.service.MusicService
 import com.se.themusicplayer.ui.dialog.PlaylistDialog
+import com.se.themusicplayer.vm.PlayerViewModel
+import java.util.*
 
 class PlayerActivity : AppCompatActivity() {
-    companion object{
-        const val REPEAT_PLAY = 0     //循环播放
-        const val RANDOM_PLAY = 1     //随机播放
-        const val SEQUENCE_PLAY =2    //顺序播放
-
-        const val UPDATE_MUSIC_PROGRESS = 0   //更新进度条和当前时间
-        const val UPDATE_DURATION = 1         //更新歌曲总时间
-    }
-
     /** 暂停否 */
     private var isPause = false
-    /** 循环模式 */
-    private var repeatMode = REPEAT_PLAY
-    /** 播放连接的状态 */
-    private var isPlayConnection = false
-    /** 暂停连接的状态 */
-    private var isPauseConnection = false
 
     /** 界面binding */
     private lateinit var binding:ActivityPlayerBinding
+    /** 界面vm */
+    private val viewModel by lazy {
+        ViewModelProvider(this).get(PlayerViewModel::class.java)
+    }
 
     /** CD旋转动画 */
     private val cdAnimator:ObjectAnimator by lazy{
@@ -55,84 +44,25 @@ class PlayerActivity : AppCompatActivity() {
     private val processHandler = object :Handler(Looper.getMainLooper()){
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
-            when (msg.what) {
-                /** 更新歌曲时间进度 */
-                UPDATE_MUSIC_PROGRESS -> {
-                    binding.musicProcessBar.progress = App.currentMs
-                    binding.musicCurrentTime.text = App.currentMs.formatToTime()
-                }
-                /** 更新歌曲时长 */
-                UPDATE_DURATION -> {
-                    binding.musicTotalTime.text = App.currentDuration.formatToTime()
-                }
-
-                else -> throw Exception("PlayerActivity线程更新类型选择错误")
-            }
+            binding.musicProcessBar.progress = viewModel.process.value ?: 0                      //进度条
+            binding.musicCurrentTime.text = viewModel.process.value?.formatToTime() ?: "0:00"    //时间
+            viewModel.updateProcess()
         }
-    }
-
-    /** 播放的连接 */
-    private val cnctOfPlay = object :ServiceConnection{
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            (service as MusicService.MusicPlayBinder).apply {
-                play(processHandler)
-            }
-        }
-        override fun onServiceDisconnected(name: ComponentName?) {}
-    }
-    /** 暂停的连接 */
-    private val cnctOfPause = object :ServiceConnection{
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            (service as MusicService.MusicPlayBinder).pause()
-        }
-        override fun onServiceDisconnected(name: ComponentName?) {}
-    }
-    /** 更新歌曲时长的连接 */
-    private val cnctOfDuration = object :ServiceConnection{
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            (service as MusicService.MusicPlayBinder).updateDuration(processHandler)
-        }
-        override fun onServiceDisconnected(name: ComponentName?) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // TODO: 删除这个临时数据准备
-        initData()
-
         //初始化界面绑定
         initBinding()
-
-        //初始化服务
-        initService()
 
         //初始化监听器绑定
         initListener()
 
-        //初始化控件状态
-        initView()
-    }
+        //设置自身ViewModel的观察触发
+        initVmObserve()
 
-    private fun initView() {
-        binding.apply {
-            if (!App.musicList.isEmpty()) {
-                //当前歌曲
-                musicName.text = App.currentSongData!!.name
-                musicSinger.text = App.currentSongData!!.singer
-                
-                //进度条最大值
-                musicProcessBar.max = App.currentDuration
-
-                //进度条当前值
-                musicProcessBar.progress = App.currentMs
-
-                //当前时间
-                musicCurrentTime.text = App.currentMs.formatToTime()
-
-                //最大时间
-                bindService(Intent(this@PlayerActivity,MusicService::class.java),cnctOfDuration,Context.BIND_AUTO_CREATE)
-            }
-        }
+        //设置Application的观察触发
+        initAppObserve()
     }
 
     private fun initBinding(){
@@ -155,8 +85,7 @@ class PlayerActivity : AppCompatActivity() {
             //进度条
             musicProcessBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    // TODO: Service控制器定义跳转到时刻的方法,然后修改下面
-//                    if (fromUser) player.seekTo(progress)
+                    if (fromUser) viewModel.seekTo(progress)
                 }
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -165,45 +94,20 @@ class PlayerActivity : AppCompatActivity() {
             //播放模式
             playMode.apply {
                 setOnClickListener {
-                    repeatMode = (repeatMode + 1) % 3
-                    when (repeatMode) {
-                        REPEAT_PLAY -> R.drawable.ic_repeat_play
-                        RANDOM_PLAY -> R.drawable.ic_random_play
-                        SEQUENCE_PLAY -> R.drawable.ic_sequence_play
-                        else -> {throw Exception("播放模式越界")}
-                    }.let { setImageResource(it) }
+                    viewModel.changeMode()
                 }
             }
 
             //上一首
-            // TODO: 更新顶部歌曲信息 
+            // TODO: 更新顶部歌曲信息
             previousSong.apply {
                 speed = 2f
                 setOnClickListener {
                     //动画效果
                     playAnimation()
 
-                    if(!App.musicList.isEmpty()) {
-                        //确保关闭Service对象
-                        if (isPauseConnection) {
-                            unbindService(cnctOfPause)
-                            isPauseConnection = false
-                        }
-                        if (isPlayConnection) unbindService(cnctOfPlay)
-                        stopService(Intent(this@PlayerActivity, MusicService::class.java))
-
-                        //切换now指针
-                        App.currentSongIndex!!.let{
-                            if(it>0) it.dec()
-                        }
-
-                        //重启服务以装载新的歌曲
-                        startService(Intent(this@PlayerActivity, MusicService::class.java))
-
-                        //若之前是播放状态,则继续保持
-                        if (isPlayConnection) bindService(Intent(this@PlayerActivity,
-                            MusicService::class.java), cnctOfPlay, Context.BIND_AUTO_CREATE)
-                    }
+                    //上一首
+                    viewModel.previous()
                 }
             }
 
@@ -211,42 +115,22 @@ class PlayerActivity : AppCompatActivity() {
             musicPlay.apply {
                 //动画速度
                 speed = 2f
-
                 setOnClickListener {
                     if (isPause) {
                         //动画: || 变 |>
                         resumeAnimation()
 
-                        //断开暂停的连接
-                        if(isPauseConnection) {
-                            unbindService(cnctOfPause)
-                        }
-
-                        //开启暂停连接
-                        Intent(this@PlayerActivity,MusicService::class.java).let {
-                            bindService(it,cnctOfPause,Context.BIND_AUTO_CREATE)
-                        }
-                        isPauseConnection = true
+                        //暂停音乐
+                        viewModel.pause()
                     }
                     else {
                         //动画: |> 变 ||
                         playAnimation()
 
-                        //断开播放的连接
-                        if(isPlayConnection){
-                            unbindService(cnctOfPlay)
-                            isPlayConnection = false
-                        }
-
-                        //开启播放的连接
-                        Intent(this@PlayerActivity,MusicService::class.java).let {
-                            bindService(it,cnctOfPlay,Context.BIND_AUTO_CREATE)
-                        }
-
-                        isPlayConnection = true
+                        //播放音乐
+                        viewModel.start()
                     }
                 }
-                // TODO: 将isPause的改变向外提出到if中
                 addAnimatorUpdateListener {
                     if (!isPause && it.animatedFraction > 0.5f) {
                         isPause = !isPause
@@ -270,27 +154,8 @@ class PlayerActivity : AppCompatActivity() {
                     //动画效果
                     playAnimation()
 
-                    if(!App.musicList.isEmpty()) {
-                        //确保关闭Service对象
-                        if (isPauseConnection) {
-                            unbindService(cnctOfPause)
-                            isPauseConnection = false
-                        }
-                        if (isPlayConnection) unbindService(cnctOfPlay)
-                        stopService(Intent(this@PlayerActivity, MusicService::class.java))
-
-                        //切换now指针
-                        App.currentSongIndex!!.let{
-                            if(it<App.musicList.size-1) it.inc()
-                        }
-
-                        //重启服务以装载新的歌曲
-                        startService(Intent(this@PlayerActivity, MusicService::class.java))
-
-                        //若之前是播放状态,则继续保持
-                        if (isPlayConnection) bindService(Intent(this@PlayerActivity,
-                            MusicService::class.java), cnctOfPlay, Context.BIND_AUTO_CREATE)
-                    }
+                    //下一首
+                    viewModel.next()
                 }
             }
 
@@ -303,24 +168,51 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun initService(){
-        if (!App.musicList.isEmpty()){
-            startService(Intent(this,MusicService::class.java))
+    private fun initVmObserve(){
+        viewModel.apply {
+            //歌曲名
+            songName.observe(this@PlayerActivity){
+                binding.musicName.text = it ?: "Music Name"
+            }
+            //歌手
+            singer.observe(this@PlayerActivity){
+                binding.musicSinger.text = it ?: "singer"
+            }
+
+            //进度
+            process.observe(this@PlayerActivity){
+                processHandler.sendEmptyMessageDelayed(0,100)
+            }
+            //时长
+            duration.observe(this@PlayerActivity){
+                binding.musicProcessBar.max = it ?: 0                       //进度条
+                binding.musicTotalTime.text = it?.formatToTime() ?: "0:00"  //时间
+            }
+
+            //模式
+            mode.observe(this@PlayerActivity){
+                when(it){
+                    MusicList.REPEAT_PLAY -> R.drawable.ic_repeat_play
+                    MusicList.RANDOM_PLAY -> R.drawable.ic_random_play
+                    MusicList.SEQUENCE_PLAY -> R.drawable.ic_sequence_play
+                    else -> throw Exception("循环模式类型错误")
+                }.let { binding.playMode.setImageResource(it) }
+            }
         }
     }
 
-    // TODO: 删除它
-    private fun initData(){
-        App.musicList.apply {
-            add(Song("孙笑川干了哪些恶事","孙笑川","Music/孙笑川.mp3"))
+    private fun initAppObserve(){
+        App.apply {
+            //服务控制器
+            musicServiceBinder.observe(this@PlayerActivity){
+            }
         }
-        App.refreshMusicListStateData()
     }
 
-    // TODO: 添加歌曲或删除歌曲后,要更新now指针和now数据 -> 将方法封装到App中
-    // TODO: 将歌曲切换.播放.暂停的动作封装
+
+        // TODO: 添加歌曲或删除歌曲后,要更新now指针和now数据 -> 将方法封装到App中
+        // TODO: 将歌曲切换.播放.暂停的动作封装
 }
 
-
-
-
+// TODO: [笔记]LiveDate()的数据只要是被重新赋了值,就会触发观察
+// TODO: [笔记]observe的连锁反应一定要放在handle中,否则会阻塞
