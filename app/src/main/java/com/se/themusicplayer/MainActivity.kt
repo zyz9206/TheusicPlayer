@@ -13,28 +13,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding:ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
 
+        //开屏动画
         binding.startAppAnimation.apply{
             repeatCount = 0
             playAnimation()
-            speed = 1f
+            speed = 1.5f
             addAnimatorListener(object :Animator.AnimatorListener{
-                override fun onAnimationStart(animation: Animator?) {
-                }
-
+                //动画结束后切换页面
                 override fun onAnimationEnd(animation: Animator?) {
-                    Intent(this@MainActivity,PlayerActivity::class.java).let{
-                        startActivity(it)
-                    }
+                    startActivity(Intent(this@MainActivity,PlayerActivity::class.java))
+//                    overridePendingTransition(R.anim.alpha_in,R.anim.alpha_out)
                 }
-
-                override fun onAnimationCancel(animation: Animator?) {
-                }
-                override fun onAnimationRepeat(animation: Animator?) {
-                }
+                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationRepeat(animation: Animator?) {}
             })
         }
 

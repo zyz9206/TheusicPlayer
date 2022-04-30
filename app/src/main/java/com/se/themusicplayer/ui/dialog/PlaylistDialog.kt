@@ -6,9 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.se.themusicplayer.App
 import com.se.themusicplayer.adapter.PlaylistDialogAdapter
 import com.se.themusicplayer.databinding.DialogPlayListBinding
-import com.se.themusicplayer.model.TestSongData
+import com.se.themusicplayer.data.ListSongData
 
 class PlaylistDialog : BottomSheetDialogFragment() {
     private var _binding : DialogPlayListBinding?=null
@@ -27,20 +28,23 @@ class PlaylistDialog : BottomSheetDialogFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        //初始化数据
+        for (i in App.musicList){
+            dataSet.add(ListSongData(i.name,i.singer))
+        }
 
+        //设置歌曲数
+        binding.playListTitle.let {
+            it.text = it.text.toString().format(App.musicList.size)
+        }
+
+        //初始化LV绑定
         binding.playListRV.apply {
-            initData()
             adapter = PlaylistDialogAdapter(dataSet)
-            //设置列表歌曲数
-            //滚动到当前歌曲
+            // TODO: 滚动到当前歌曲
             layoutManager = LinearLayoutManager(context)
         }
     }
 
-    private val dataSet = mutableListOf<TestSongData>()
-    private fun initData(){
-        repeat(10){
-            dataSet.add(TestSongData("1","2"))
-        }
-    }
+    private val dataSet = mutableListOf<ListSongData>()
 }
