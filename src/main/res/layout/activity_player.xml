@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.player.PlayerActivity">
+
+    <!-- 顶部-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_bar"
+        android:background="@drawable/bg_topbar"
+        android:paddingTop="0dp"
+        android:paddingBottom="5dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:src="@drawable/ic_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="6dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/musicName"
+            android:layout_marginTop="4dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="28dp"
+            android:textColor="#060505"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="%Music Name%"
+            android:textAlignment="textStart"
+            android:textSize="22sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_back"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/musicSinger"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:alpha="0.5"
+            android:maxWidth="100dp"
+            android:paddingStart="1dp"
+            android:paddingEnd="1dp"
+            android:singleLine="true"
+            android:text="%singer%"
+            android:textAlignment="textStart"
+            android:textColor="#050505"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/musicName"
+            app:layout_constraintStart_toStartOf="@+id/musicName"
+            app:layout_constraintTop_toBottomOf="@+id/musicName" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--    主体-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/center"
+        android:background="@drawable/bg_music_play_center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomControl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/top_bar">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/cdCover"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/music_plate"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/dso_style_rounded" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--底部控制-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottomControl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_control"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+<!--进度条-->
+        <SeekBar
+            android:id="@+id/musicProcessBar"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="4dp"
+            android:alpha="0.72"
+            android:background="@drawable/bg_music_process_bar"
+            android:maxHeight="2dp"
+            android:minHeight="4dp"
+            android:progressDrawable="@drawable/music_process_bar_bg"
+            android:splitTrack="false"
+            android:thumb="@drawable/music_process_bar_thumb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+<!--当前时间-->
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="16dp"
+            android:id="@+id/musicCurrentTime"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="30dp"
+            android:text="00:00"
+            android:textAlignment="textStart"
+            android:textColor="#1d1d1d"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/musicControl"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/musicProcessBar" />
+<!--        总时间-->
+        <TextView
+            android:id="@+id/musicTotalTime"
+            android:layout_width="40dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="4dp"
+            android:text="00:00"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+            android:textColor="#1d1d1d"
+            app:layout_constraintBottom_toTopOf="@id/musicControl"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/musicProcessBar" />
+
+<!--        歌曲控制-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_music_controller"
+            android:id="@+id/musicControl"
+            android:layout_marginBottom="20dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+<!--            暂停/播放-->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/musicPlay"
+                app:lottie_rawRes="@raw/play"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+<!--            上一首-->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/previousSong"
+                app:lottie_rawRes="@raw/previous"
+                app:lottie_loop="false"
+                app:lottie_autoPlay="false"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="10dp"
+                android:padding="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/musicPlay"
+                app:layout_constraintTop_toTopOf="parent" />
+<!--            下一首-->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/nextSong"
+                app:lottie_rawRes="@raw/next"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="10dp"
+                android:padding="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/musicPlay"
+                app:layout_constraintTop_toTopOf="parent" />
+
+<!--            播放模式-->
+            <ImageView
+                android:id="@+id/playMode"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="14dp"
+                android:padding="16dp"
+                android:src="@drawable/ic_repeat_play"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+<!--            歌曲列表-->
+            <ImageView
+                android:id="@+id/listOfSongs"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="14dp"
+                android:padding="16dp"
+                android:src="@drawable/ic_music_list"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
