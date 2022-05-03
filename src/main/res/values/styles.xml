@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="dso_style_rounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">125dp</item>
+    </style>
+    
+
+
+
+</resources>
